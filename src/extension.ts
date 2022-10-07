@@ -5,9 +5,11 @@ import * as vscode from 'vscode';
 const jsdom = require('jsdom');
 const axios = require('axios').default;
 
-import { JOJProvider } from './JOJDataProvider';
+import { JOJProvider, Course, Homework, Question } from './JOJDataProvider';
 
 var dealing_queue = [];
+var joj_tree: JOJProvider;
+var user_sid = "2c2cd83712259dc506aa45ec265eaa7ed2e261f5c3a4026a3a6cfaa564d80eba";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -15,6 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     const course_tree = new JOJProvider();
+    joj_tree = course_tree; // Global Reference
 
     let disposable = vscode.commands.registerCommand('joj-tools.refresh', function () {
         course_tree.clean();
@@ -37,6 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
         // Refresh all homework under one course
         vscode.window.showInformationMessage(`Course ${course.name} is being fetched...`);
         course.killChildren();
+        joj_tree.refresh();
+        get_course_page(course);
     });
 
     vscode.commands.registerCommand('joj-tools.refreshquestion', function (homework) {
@@ -47,42 +52,76 @@ export function activate(context: vscode.ExtensionContext) {
 
 }
 
-function trim_url(url:string){
-    if(url.charAt(url.length - 1)=='/'){
-        var ns = url.substring(0,url.length - 1);
-    }else{
+function trim_url(url: string) {
+    if (url.charAt(url.length - 1) == '/') {
+        var ns = url.substring(0, url.length - 1);
+    } else {
         ns = url;
     }
     return ns.substring(ns.lastIndexOf('/') + 1);
 }
 
-async function get_home_page() {
-    try {
-        const response = await axios.get("https://joj.sjtu.edu.cn/");
-        const dom = new jsdom.JSDOM(response.data);
-        console.log(dom.window.document.querySelector("p").textContent)
-        const courses = dom.window.document.querySelectorAll("tr")
-        for (let i = 2; i < courses.length; i++) {
-            const element = courses[i];
-            const name = element.querySelector("td").textContent.trim();
-            const href = element.querySelector("a").href;
-
-        }
-        const captcha_panel = vscode.window.createWebviewPanel("code", "captcha", vscode.ViewColumn.One);
-        captcha_panel.webview.html = "The captcha is";
-        var captcha_input = await vscode.window.showInputBox({
-            ignoreFocusOut: true,
-            title: "Enter the CAPTCHA",
-            prompt: "Please enter the captcha shown in the picture"
+async function http_get(url: string) {
+    return axios.get(url,
+        {
+            headers: {
+                Cookie: `sid=${user_sid};save=1;`
+            }
         });
-        console.log(captcha_input);
-        captcha_panel.dispose();
+}
 
+async function get_course_page(course: Course){
+    try {
+        const response = await http_get(course.url);
+        const dom = new jsdom.JSDOM(response.data);
+        console.log(response.data);
+        var json_raw = dom.window.document.querySelectorAll("script")[3].textContent.trim();
+        console.log(dom.window.document.querySelectorAll("script")[3].textContent);
+        json_raw = json_raw.substring(14, json_raw.length-1);
+        var course_json = JSON.parse(json_raw)['docs'];
+        course_json.forEach((element: any) => {
+            const id = element.id;
+            const status = element.status;
+            const title = element.title;
+            course.addHomework(title,id);
+            console.log(element)
+        });
+        joj_tree.refresh();
     } catch (err) {
         vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`)
         console.log(err);
     }
+}
 
+async function get_home_page() {
+    try {
+        const response = await http_get("https://joj.sjtu.edu.cn/");
+        const dom = new jsdom.JSDOM(response.data);
+        const courses = dom.window.document.querySelectorAll("tr");
+        for (let i = 2; i < courses.length; i++) {
+            const element = courses[i];
+            const name = element.querySelector("td").textContent.trim();
+            const href = element.querySelector("a").href;
+            const role = element.querySelectorAll("td")[1].textContent.trim();
+            joj_tree.addCourse(name, role, trim_url(href));
+        }
+        joj_tree.refresh();
+    } catch (err) {
+        vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`)
+        console.log(err);
+    }
+}
+
+async function get_sid() {
+    const captcha_panel = vscode.window.createWebviewPanel("code", "captcha", vscode.ViewColumn.One);
+    captcha_panel.webview.html = "The captcha is";
+    var captcha_input = await vscode.window.showInputBox({
+        ignoreFocusOut: true,
+        title: "Enter the CAPTCHA",
+        prompt: "Please enter the captcha shown in the picture"
+    });
+    console.log(captcha_input);
+    captcha_panel.dispose();
 }
 
 function load_page(playback: () => any, prompt?: string) {

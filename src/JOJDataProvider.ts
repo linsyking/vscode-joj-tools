@@ -35,7 +35,7 @@ export class JOJProvider implements vscode.TreeDataProvider<JOJItem> {
 
 }
 
-class JOJItem extends vscode.TreeItem {
+export class JOJItem extends vscode.TreeItem {
     url: string = "";
     children: JOJItem[] = [];
     constructor(
@@ -53,7 +53,7 @@ class JOJItem extends vscode.TreeItem {
 }
 
 
-class Course extends JOJItem {
+export class Course extends JOJItem {
     constructor(
         public readonly name: string,
         private role: string,
@@ -73,7 +73,7 @@ class Course extends JOJItem {
     contextValue = "course";
 }
 
-class Homework extends JOJItem {
+export class Homework extends JOJItem {
     constructor(
         public readonly name: string,
         private cid: string,
@@ -90,7 +90,7 @@ class Homework extends JOJItem {
     contextValue = "homework";
 }
 
-class Question extends JOJItem {
+export class Question extends JOJItem {
     constructor(
         public readonly name: string,
         private cid: string,
