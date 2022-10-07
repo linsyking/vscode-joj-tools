@@ -9,7 +9,7 @@ import { JOJProvider, Course, Homework, Question } from './JOJDataProvider';
 
 var dealing_queue = [];
 var joj_tree: JOJProvider;
-var user_sid = "2c2cd83712259dc506aa45ec265eaa7ed2e261f5c3a4026a3a6cfaa564d80eba";
+var user_sid = "";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -149,15 +149,20 @@ async function get_sid() {
             });
             child.stdin.write(`${captcha_input}\n${username_input}\n${password_input}\n`);
         }else{
-            // Exclude Please
-            console.log(data);
+            if (data.indexOf("Please") == -1)
+            user_sid=data;
+            console.log(user_sid);
         }
 
     })
 
     child.stderr.on("data", (data) => {
-        
-        console.log("error", data);
+        if (data.indexOf("Please") != -1)
+        {
+            vscode.window.showErrorMessage("Something wrong with captcha,username or password! Please try again!");
+            get_sid();
+        }
+
     })
 
 }
