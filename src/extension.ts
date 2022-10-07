@@ -163,16 +163,21 @@ async function get_sid() {
                 password: true
             });
             child.stdin.write(`${captcha_input}\n${username_input}\n${password_input}\n`);
-        } else {
-            // Exclude Please
-            console.log(data);
+        }else{
+            if (data.indexOf("Please") == -1)
+            user_sid=data;
+            console.log(user_sid);
         }
 
     })
 
     child.stderr.on("data", (data) => {
+        if (data.indexOf("Please") != -1)
+        {
+            vscode.window.showErrorMessage("Something wrong with captcha,username or password! Please try again!");
+            get_sid();
+        }
 
-        console.log("error", data);
     })
 
 }
