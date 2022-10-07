@@ -121,45 +121,45 @@ async function get_home_page() {
     }
 }
 
-const ConvertStringToHTML = function (str) {
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(str, 'text/html');
-    return doc.body;
- };
-
 async function get_sid() {
     const child = spawn("joj-auth");
     child.stdout.setEncoding('utf-8');
+    child.stderr.setEncoding('utf-8');
     child.stdin.setDefaultEncoding('utf-8');
     const captcha_panel = vscode.window.createWebviewPanel("code", "captcha", vscode.ViewColumn.One);
-    child.stdout.on("data", async(data) => {
-        console.log(data);
-        if (data.indexOf("captcha")!=-1)
-        {captcha_panel.webview.html =`<div   style="position:fixed;text-align:center;top:30%;left:10%"><textarea rows="30" cols="100" readonly="readonly" style="resize:none" >${data}</textarea></div>`
-        var captcha_input = await vscode.window.showInputBox({
-            ignoreFocusOut: true,
-            title: "Enter the CAPTCHA",
-            prompt: "Please enter the captcha shown in the picture"
-        });
-        console.log(captcha_input);
-        captcha_panel.dispose();
-        var username_input = await vscode.window.showInputBox({
-            ignoreFocusOut: true,
-            title: "Enter the jaccount username",
-            prompt: "Please enter the jaccount username"
-        });
-        var password_input = await vscode.window.showInputBox({
-            ignoreFocusOut: true,
-            title: "Enter the password",
-            prompt: "Please enter the password",
-            password:true
-        });
-        child.stdin.write(`${captcha_input}\n${username_input}\n${password_input}\n`);
-    }
+    child.stdout.on("data", async (data) => {
+        if (data.indexOf("captcha") != -1) {
+            captcha_panel.webview.html = `<div   style="position:fixed;text-align:center;top:30%;left:10%"><textarea rows="30" cols="100" readonly="readonly" style="resize:none" >${data}</textarea></div>`
+            var captcha_input = await vscode.window.showInputBox({
+                ignoreFocusOut: true,
+                title: "Enter the CAPTCHA",
+                prompt: "Please enter the captcha shown in the picture"
+            });
+            captcha_panel.dispose();
+            var username_input = await vscode.window.showInputBox({
+                ignoreFocusOut: true,
+                title: "Enter the jaccount username",
+                prompt: "Please enter the jaccount username"
+            });
+            var password_input = await vscode.window.showInputBox({
+                ignoreFocusOut: true,
+                title: "Enter the password",
+                prompt: "Please enter the password",
+                password: true
+            });
+            child.stdin.write(`${captcha_input}\n${username_input}\n${password_input}\n`);
+        }else{
+            // Exclude Please
+            console.log(data);
+        }
 
-       
     })
-    
+
+    child.stderr.on("data", (data) => {
+        
+        console.log("error", data);
+    })
+
 }
 
 function load_page(playback: any, args?: any, prompt?: string) {
