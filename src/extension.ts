@@ -5,10 +5,13 @@ import * as vscode from 'vscode';
 const jsdom = require('jsdom');
 const axios = require('axios').default;
 import { spawn } from "child_process";
-import { JOJProvider, Course, Homework } from './JOJDataProvider';
+import { JOJProvider, Course, Homework, Question } from './JOJDataProvider';
 import { LocalStorageService } from './Config';
+import { compress } from './Compress';
+import { submit_code } from './JOJBackend';
+import path = require('path');
 
-var dealing_queue = [];
+var dealing_queue : Question[] = [];
 var joj_tree: JOJProvider;
 var local_storage: LocalStorageService;
 var user_sid: string;
@@ -16,7 +19,7 @@ var user_sid: string;
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    local_storage = new LocalStorageService(context.workspaceState);
+    local_storage = new LocalStorageService(context.globalState);
 
     const course_tree = new JOJProvider();
     joj_tree = course_tree; // Global Reference
@@ -34,8 +37,19 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.window.registerTreeDataProvider("joj-tree", course_tree);
 
-    vscode.commands.registerCommand('joj-tools.submithomework', function (homework) {
+    vscode.commands.registerCommand('joj-tools.submithomework', function (homework: Homework) {
         vscode.window.showInformationMessage("We are still developing this function...");
+    });
+
+    vscode.commands.registerCommand('joj-tools.submitquestion', function (question: Question) {
+        const myfolder = vscode.workspace.workspaceFolders;
+        const fpath = myfolder?myfolder[0].uri.path:"./";
+        compress(fpath,()=>{
+            // Upload
+            submit_code(question.url, path.join(fpath,"a.zip"), "matlab", user_sid, (data)=>{
+                console.log(data);
+            })
+        })
     });
 
     vscode.commands.registerCommand('joj-tools.reedit', function () {
@@ -99,7 +113,7 @@ async function get_homework_page(homework: Homework) {
             const title = hwk.querySelectorAll("td")[2].textContent.substring(20).trim();
             const url = hwk.querySelectorAll("td")[2].querySelector("a").href;
             const status = hwk.querySelectorAll("td")[0].textContent.trim();
-            homework.addQuestion(title, url, status);
+            homework.addQuestion(title, trim_url(url), status);
         }
         joj_tree.refresh();
     } catch (err) {
@@ -145,12 +159,14 @@ async function get_home_page() {
     }
 }
 
-async function get_sid() {
+async function get_sid(last_username?: string, last_password?: string) {
     const child = spawn("joj-auth");
     child.stdout.setEncoding('utf-8');
     child.stderr.setEncoding('utf-8');
     child.stdin.setDefaultEncoding('utf-8');
     const captcha_panel = vscode.window.createWebviewPanel("code", "captcha", vscode.ViewColumn.One);
+    var username_input: string | undefined;
+    var password_input: string | undefined;
     child.stdout.on("data", async (data) => {
         if (data.indexOf("captcha") != -1) {
             captcha_panel.webview.html = `<div   style="position:fixed;text-align:center;top:30%;left:10%"><textarea rows="30" cols="100" readonly="readonly" style="resize:none" >${data}</textarea></div>`
@@ -160,13 +176,15 @@ async function get_sid() {
                 prompt: "Please enter the captcha shown in the picture"
             });
             captcha_panel.dispose();
-            var username_input = await vscode.window.showInputBox({
+            username_input = await vscode.window.showInputBox({
                 ignoreFocusOut: true,
+                value: last_username,
                 title: "Enter the jaccount username",
                 prompt: "Please enter the jaccount username"
             });
-            var password_input = await vscode.window.showInputBox({
+            password_input = await vscode.window.showInputBox({
                 ignoreFocusOut: true,
+                value: last_password,
                 title: "Enter the password",
                 prompt: "Please enter the password",
                 password: true
@@ -178,15 +196,13 @@ async function get_sid() {
                 local_storage.setValue("sid", user_sid);
                 load_page(get_home_page);
             }
-
         }
-
     })
 
     child.stderr.on("data", (data) => {
         if (data.indexOf("Please") != -1) {
             vscode.window.showErrorMessage("Something wrong with captcha,username or password! Please try again!");
-            get_sid();
+            get_sid(username_input, password_input);
         }
 
     })

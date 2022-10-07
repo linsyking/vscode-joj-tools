@@ -108,6 +108,9 @@ export class Question extends JOJItem {
             case "No Submissions":
                 icon_style = "circle-filled";
                 break;
+            case "Running":
+                icon_style = "repo-sync";
+                break;
             default:
                 icon_style = "close";
                 break;
