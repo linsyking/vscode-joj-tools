@@ -1,0 +1,18 @@
+{
+    // "compilerOptions": {
+    //     "module": "commonjs",
+    //     "target": "es5",
+    //     "noImplicitAny": false,
+    //     "sourceMap": false
+    // },
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "strict": false,
+        "jsx": "preserve",
+        "moduleResolution": "node"
+    }
+    // "exclude": [
+    //     "node_modules"
+    // ]
+}
