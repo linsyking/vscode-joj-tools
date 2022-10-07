@@ -22,14 +22,24 @@
         "title": "JOJ Tools: Refresh JOJ"
       },
       {
-        "icon": "$(refresh)",
-        "command": "joj-tools.refreshentry",
+        "icon": "$(pencil)",
+        "command": "joj-tools.submithomework",
+        "title": "JOJ Tools: Refresh JOJ Entry"
+      },
+      {
+        "icon": "$(pencil)",
+        "command": "joj-tools.submitquestion",
         "title": "JOJ Tools: Refresh JOJ Entry"
       },
       {
         "icon": "$(refresh)",
-        "command": "joj-tools.submitentry",
-        "title": "JOJ Tools: Refresh JOJ Entry"
+        "command": "joj-tools.refreshquestion",
+        "title": "Refresh Questions"
+      },
+      {
+        "icon": "$(refresh)",
+        "command": "joj-tools.refreshhomework",
+        "title": "Refresh Homeworks"
       }
     ],
     "viewsContainers": {
@@ -51,9 +61,24 @@
       ],
       "view/item/context": [
         {
-          "command": "joj-tools.submitentry",
+          "command": "joj-tools.submithomework",
           "group": "inline",
           "when": "view == joj-tree && viewItem == homework"
+        },
+        {
+          "command": "joj-tools.refreshhomework",
+          "group": "inline",
+          "when": "view == joj-tree && viewItem == course"
+        },
+        {
+          "command": "joj-tools.refreshquestion",
+          "group": "inline",
+          "when": "view == joj-tree && viewItem == homework"
+        },
+        {
+          "command": "joj-tools.submitquestion",
+          "group": "inline",
+          "when": "view == joj-tree && viewItem == question"
         }
       ]
     },
