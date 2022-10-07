@@ -23,13 +23,18 @@
       },
       {
         "icon": "$(pencil)",
+        "command": "joj-tools.reedit",
+        "title": "Reedit SID"
+      },
+      {
+        "icon": "$(pencil)",
         "command": "joj-tools.submithomework",
-        "title": "JOJ Tools: Refresh JOJ Entry"
+        "title": "Submit Homework"
       },
       {
         "icon": "$(pencil)",
         "command": "joj-tools.submitquestion",
-        "title": "JOJ Tools: Refresh JOJ Entry"
+        "title": "Submit Question"
       },
       {
         "icon": "$(refresh)",
@@ -54,10 +59,16 @@
     "menus": {
       "view/title": [
         {
+          "command": "joj-tools.reedit",
+          "group": "navigation",
+          "when": "view == joj-tree"
+        },
+        {
           "command": "joj-tools.refresh",
           "group": "navigation",
           "when": "view == joj-tree"
         }
+        
       ],
       "view/item/context": [
         {

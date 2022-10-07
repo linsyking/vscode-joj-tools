@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
     joj_tree = course_tree; // Global Reference
 
     precheck_sid();
-    if(user_sid){
+    if (user_sid) {
         load_page(get_home_page);
     }
 
@@ -36,6 +36,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand('joj-tools.submithomework', function (homework) {
         vscode.window.showInformationMessage("We are still developing this function...");
+    });
+
+    vscode.commands.registerCommand('joj-tools.reedit', function () {
+        get_sid();
     });
 
     vscode.commands.registerCommand('joj-tools.refreshhomework', function (course) {
@@ -163,17 +167,19 @@ async function get_sid() {
                 password: true
             });
             child.stdin.write(`${captcha_input}\n${username_input}\n${password_input}\n`);
-        }else{
-            if (data.indexOf("Please") == -1)
-            user_sid=data;
-            console.log(user_sid);
+        } else {
+            if (data.indexOf("Please") == -1) {
+                user_sid = data.trim();
+                local_storage.setValue("sid", user_sid);
+                load_page(get_home_page);
+            }
+
         }
 
     })
 
     child.stderr.on("data", (data) => {
-        if (data.indexOf("Please") != -1)
-        {
+        if (data.indexOf("Please") != -1) {
             vscode.window.showErrorMessage("Something wrong with captcha,username or password! Please try again!");
             get_sid();
         }
