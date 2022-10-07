@@ -5,20 +5,26 @@ import * as vscode from 'vscode';
 const jsdom = require('jsdom');
 const axios = require('axios').default;
 import { spawn } from "child_process";
-import { JOJProvider, Course, Homework, Question } from './JOJDataProvider';
+import { JOJProvider, Course, Homework } from './JOJDataProvider';
+import { LocalStorageService } from './Config';
 
 var dealing_queue = [];
 var joj_tree: JOJProvider;
-var user_sid = "2c2cd83712259dc506aa45ec265eaa7ed2e261f5c3a4026a3a6cfaa564d80eba";
+var local_storage: LocalStorageService;
+var user_sid: string;
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    get_sid();
+    local_storage = new LocalStorageService(context.workspaceState);
+
     const course_tree = new JOJProvider();
     joj_tree = course_tree; // Global Reference
 
-    load_page(get_home_page);
+    precheck_sid();
+    if(user_sid){
+        load_page(get_home_page);
+    }
 
     let disposable = vscode.commands.registerCommand('joj-tools.refresh', function () {
         course_tree.clean();
@@ -46,6 +52,15 @@ export function activate(context: vscode.ExtensionContext) {
         load_page(get_homework_page, homework, "Loading Question");
     });
 
+}
+
+function precheck_sid() {
+    var usid = local_storage.getValue("sid");
+    if (usid) {
+        user_sid = String(usid);
+    } else {
+        get_sid();
+    }
 }
 
 function trim_url(url: string) {
@@ -148,7 +163,7 @@ async function get_sid() {
                 password: true
             });
             child.stdin.write(`${captcha_input}\n${username_input}\n${password_input}\n`);
-        }else{
+        } else {
             // Exclude Please
             console.log(data);
         }
@@ -156,7 +171,7 @@ async function get_sid() {
     })
 
     child.stderr.on("data", (data) => {
-        
+
         console.log("error", data);
     })
 
