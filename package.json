@@ -37,6 +37,11 @@
         "title": "Submit Question"
       },
       {
+        "icon": "$(eye)",
+        "command": "joj-tools.viewquestion",
+        "title": "View Question Details"
+      },
+      {
         "icon": "$(refresh)",
         "command": "joj-tools.refreshquestion",
         "title": "Refresh Questions"
@@ -82,12 +87,17 @@
           "when": "view == joj-tree && viewItem == course"
         },
         {
+          "command": "joj-tools.submitquestion",
+          "group": "inline",
+          "when": "view == joj-tree && viewItem == question"
+        },
+        {
           "command": "joj-tools.refreshquestion",
           "group": "inline",
           "when": "view == joj-tree && viewItem == homework"
         },
         {
-          "command": "joj-tools.submitquestion",
+          "command": "joj-tools.viewquestion",
           "group": "inline",
           "when": "view == joj-tree && viewItem == question"
         }

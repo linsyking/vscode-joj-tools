@@ -59,10 +59,10 @@ export class Course extends JOJItem {
         private role: string,
         private cid: string
     ) {
-        super(name, vscode.TreeItemCollapsibleState.Expanded);
+        super(name, vscode.TreeItemCollapsibleState.Collapsed);
         this.tooltip = `${this.name}-${this.role}`;
         this.description = this.role;
-        this.iconPath = new vscode.ThemeIcon("book");
+        this.iconPath = new vscode.ThemeIcon("folder");
         this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework`
     }
 
@@ -81,7 +81,7 @@ export class Homework extends JOJItem {
     ) {
         super(name, vscode.TreeItemCollapsibleState.Expanded);
         this.tooltip = `${this.name}`;
-        this.iconPath = new vscode.ThemeIcon("book");
+        this.iconPath = new vscode.ThemeIcon("file");
         this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}`
     }
     addQuestion(name: string, qid: string, status: string) {

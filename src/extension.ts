@@ -42,6 +42,10 @@ export function activate(context: vscode.ExtensionContext) {
         get_sid();
     });
 
+    vscode.commands.registerCommand('joj-tools.viewquestion', function () {
+        vscode.window.showInformationMessage("We are still developing this function...");
+    });
+
     vscode.commands.registerCommand('joj-tools.refreshhomework', function (course) {
         // Refresh all homework under one course
         course.killChildren();
@@ -131,7 +135,8 @@ async function get_home_page() {
             const name = element.querySelector("td").textContent.trim();
             const href = element.querySelector("a").href;
             const role = element.querySelectorAll("td")[1].textContent.trim();
-            joj_tree.addCourse(name, role, trim_url(href));
+            const tmp_course = joj_tree.addCourse(name, role, trim_url(href));
+            await get_course_page(tmp_course);
         }
         joj_tree.refresh();
     } catch (err) {
