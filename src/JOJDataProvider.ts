@@ -15,7 +15,7 @@ export class JOJProvider implements vscode.TreeDataProvider<JOJItem> {
         return element;
     }
 
-    clean(){
+    clean() {
         this.courses = []
     }
 
@@ -59,7 +59,7 @@ export class Course extends JOJItem {
         private role: string,
         private cid: string
     ) {
-        super(name, vscode.TreeItemCollapsibleState.Collapsed);
+        super(name, vscode.TreeItemCollapsibleState.Expanded);
         this.tooltip = `${this.name}-${this.role}`;
         this.description = this.role;
         this.iconPath = new vscode.ThemeIcon("book");
@@ -79,13 +79,13 @@ export class Homework extends JOJItem {
         private cid: string,
         private hid: string
     ) {
-        super(name, vscode.TreeItemCollapsibleState.Collapsed);
+        super(name, vscode.TreeItemCollapsibleState.Expanded);
         this.tooltip = `${this.name}`;
         this.iconPath = new vscode.ThemeIcon("book");
-        this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}/`
+        this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}`
     }
-    addQuestion(name: string, qid: string) {
-        this.addChild(new Question(name, this.cid, this.hid, qid));
+    addQuestion(name: string, qid: string, status: string) {
+        this.addChild(new Question(name, this.cid, this.hid, qid, status));
     }
     contextValue = "homework";
 }
@@ -95,13 +95,25 @@ export class Question extends JOJItem {
         public readonly name: string,
         private cid: string,
         private hid: string,
-        private qid: string
+        private qid: string,
+        private status: string
     ) {
         super(name, vscode.TreeItemCollapsibleState.None);
         this.tooltip = `${this.name}`;
-        this.description = this.name;
-        this.iconPath = new vscode.ThemeIcon("book");
-        this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}/${this.qid}/`
+        var icon_style = "";
+        switch (status) {
+            case "Accepted":
+                icon_style = "check";
+                break;
+            case "No Submissions":
+                icon_style = "circle-filled";
+                break;
+            default:
+                icon_style = "close";
+                break;
+        }
+        this.iconPath = new vscode.ThemeIcon(icon_style);
+        this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}/${this.qid}`
     }
     contextValue = "question";
 }

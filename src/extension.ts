@@ -15,9 +15,10 @@ var user_sid = "2c2cd83712259dc506aa45ec265eaa7ed2e261f5c3a4026a3a6cfaa564d80eba
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-
     const course_tree = new JOJProvider();
     joj_tree = course_tree; // Global Reference
+
+    load_page(get_home_page);
 
     let disposable = vscode.commands.registerCommand('joj-tools.refresh', function () {
         course_tree.clean();
@@ -25,29 +26,24 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(disposable);
 
-    // const c1 = course_tree.addCourse("sa", "sd", "Dssd");
-    // c1.addHomework("dssda", "Dd");
     vscode.window.registerTreeDataProvider("joj-tree", course_tree);
 
     vscode.commands.registerCommand('joj-tools.submithomework', function (homework) {
         vscode.window.showInformationMessage("We are still developing this function...");
-        // const c1 = course_tree.addCourse("sa", "sd","Dssd");
-        // c1.addHomework("dssda", "Dd");
-        // course_tree.refresh();
     });
 
     vscode.commands.registerCommand('joj-tools.refreshhomework', function (course) {
         // Refresh all homework under one course
-        vscode.window.showInformationMessage(`Course ${course.name} is being fetched...`);
         course.killChildren();
         joj_tree.refresh();
-        get_course_page(course);
+        load_page(get_course_page, course, "Loading Homework");
     });
 
     vscode.commands.registerCommand('joj-tools.refreshquestion', function (homework) {
         // Refresh all homework under one course
-        vscode.window.showInformationMessage(`Homework ${homework.name} is being fetched...`);
         homework.killChildren();
+        joj_tree.refresh();
+        load_page(get_homework_page, homework, "Loading Question");
     });
 
 }
@@ -70,21 +66,34 @@ async function http_get(url: string) {
         });
 }
 
-async function get_course_page(course: Course){
+async function get_homework_page(homework: Homework) {
+    try {
+        const response = await http_get(homework.url);
+        const dom = new jsdom.JSDOM(response.data);
+        var homeworks = dom.window.document.querySelectorAll("tr");
+        for (let i = 1; i < homeworks.length; i++) {
+            const hwk = homeworks[i];
+            const title = hwk.querySelectorAll("td")[2].textContent.substring(20).trim();
+            const url = hwk.querySelectorAll("td")[2].querySelector("a").href;
+            const status = hwk.querySelectorAll("td")[0].textContent.trim();
+            homework.addQuestion(title, url, status);
+        }
+        joj_tree.refresh();
+    } catch (err) {
+        vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`)
+        console.log(err);
+    }
+}
+
+async function get_course_page(course: Course) {
     try {
         const response = await http_get(course.url);
         const dom = new jsdom.JSDOM(response.data);
-        console.log(response.data);
-        var json_raw = dom.window.document.querySelectorAll("script")[3].textContent.trim();
-        console.log(dom.window.document.querySelectorAll("script")[3].textContent);
-        json_raw = json_raw.substring(14, json_raw.length-1);
-        var course_json = JSON.parse(json_raw)['docs'];
-        course_json.forEach((element: any) => {
-            const id = element.id;
-            const status = element.status;
-            const title = element.title;
-            course.addHomework(title,id);
-            console.log(element)
+        var courses = dom.window.document.querySelectorAll(".homework__title")
+        courses.forEach((ele: any) => {
+            const url = ele.querySelector('a').href;
+            const title = ele.textContent;
+            course.addHomework(title, trim_url(url));
         });
         joj_tree.refresh();
     } catch (err) {
@@ -124,15 +133,14 @@ async function get_sid() {
     captcha_panel.dispose();
 }
 
-function load_page(playback: () => any, prompt?: string) {
+function load_page(playback: any, args?: any, prompt?: string) {
     vscode.window.withProgress({
         location: vscode.ProgressLocation.Window,
         cancellable: false,
         title: prompt ? prompt : 'Loading JOJ',
-
     }, async (progress) => {
         progress.report({ increment: 0 });
-        await playback();
+        await playback(args);
         progress.report({ increment: 100 });
     });
 }
