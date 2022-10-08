@@ -2,6 +2,7 @@
   "name": "joj-tools",
   "displayName": "JOJ Tools",
   "description": "Tools Integration for JOJ.",
+  "repository": "https://github.com/linsyking/vscode-joj-tools",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.72.0"
