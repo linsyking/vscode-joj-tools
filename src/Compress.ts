@@ -1,24 +1,7 @@
-import { spawn, exec } from "child_process";
-import { readdir } from "fs";
 import { join } from "path";
+import { zip, COMPRESSION_LEVEL } from "zip-a-folder";
 
-export function compress(dir_path: string, playback: any) {
+export async function compress(dir_path: string) {
     console.log("Crompressing", dir_path);
-    readdir(dir_path, (err, files) => {
-        var l_n = files.length;
-        const child = spawn('zip', ["a.zip"].concat(files),{
-            cwd: dir_path
-        });
-        child.stdout.setEncoding('utf-8');
-        child.stderr.setEncoding('utf-8');
-
-        setTimeout(() => {
-            playback();
-        }, 500);
-
-        child.stderr.on("data", (data) => {
-            console.log(data);
-        })
-    });
-
+    return zip(dir_path, join(dir_path, "../a.zip"), { compression: COMPRESSION_LEVEL.high });
 }

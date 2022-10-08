@@ -50,6 +50,9 @@ export class JOJItem extends vscode.TreeItem {
     killChildren() {
         this.children = [];
     }
+    changeIcon(icon_name: string) {
+        this.iconPath = new vscode.ThemeIcon(icon_name);
+    }
 }
 
 
@@ -67,7 +70,7 @@ export class Course extends JOJItem {
     }
 
     addHomework(name: string, hid: string) {
-        this.addChild(new Homework(name, this.cid, hid));
+        this.addChild(new Homework(name, this.cid, hid, this));
     }
 
     contextValue = "course";
@@ -77,7 +80,8 @@ export class Homework extends JOJItem {
     constructor(
         public readonly name: string,
         private cid: string,
-        private hid: string
+        private hid: string,
+        public readonly course: Course
     ) {
         super(name, vscode.TreeItemCollapsibleState.Expanded);
         this.tooltip = `${this.name}`;
@@ -85,18 +89,20 @@ export class Homework extends JOJItem {
         this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}`
     }
     addQuestion(name: string, qid: string, status: string) {
-        this.addChild(new Question(name, this.cid, this.hid, qid, status));
+        this.addChild(new Question(name, this.cid, this.hid, qid, status, this));
     }
     contextValue = "homework";
 }
 
 export class Question extends JOJItem {
+    lang: string | undefined;
     constructor(
         public readonly name: string,
         private cid: string,
         private hid: string,
         private qid: string,
-        private status: string
+        private status: string,
+        public readonly homework: Homework
     ) {
         super(name, vscode.TreeItemCollapsibleState.None);
         this.tooltip = `${this.name}`;
@@ -117,6 +123,10 @@ export class Question extends JOJItem {
         }
         this.iconPath = new vscode.ThemeIcon(icon_style);
         this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}/${this.qid}`
+    }
+
+    setLang(lang: string) {
+        this.lang = lang;
     }
     contextValue = "question";
 }

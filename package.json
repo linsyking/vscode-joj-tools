@@ -73,7 +73,6 @@
           "group": "navigation",
           "when": "view == joj-tree"
         }
-        
       ],
       "view/item/context": [
         {
@@ -136,6 +135,7 @@
   },
   "dependencies": {
     "axios": "^1.1.0",
-    "child_process": "^1.0.2"
+    "child_process": "^1.0.2",
+    "zip-a-folder": "^1.1.5"
   }
 }
