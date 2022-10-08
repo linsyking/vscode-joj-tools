@@ -137,6 +137,11 @@ async function ask_lang() {
 
 async function comp_submit(question: Question) {
     const myfolder = vscode.workspace.workspaceFolders;
+    if(!myfolder){
+        // Give up
+        vscode.window.showErrorMessage("Not in a folder!");
+        return;
+    }
     const dir = myfolder ? myfolder[0].uri.path : "./";
     var lang;
     if (question.lang) {
