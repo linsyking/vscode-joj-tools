@@ -161,7 +161,7 @@ async function comp_submit(question: Question) {
     try {
         var opt_obj = JSON.parse(String(opt));
         if (opt_obj.status != "Accepted") {
-            vscode.window.showErrorMessage(`${question.name} not passed, please se the details.`)
+            vscode.window.showErrorMessage(`${question.name} not passed, please see the details.`)
             const info_panel = vscode.window.createWebviewPanel("details", "Submission Details", vscode.ViewColumn.One);
             info_panel.webview.html = parse_result(question, opt_obj);
         }else{
