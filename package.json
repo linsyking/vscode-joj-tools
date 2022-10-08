@@ -4,7 +4,7 @@
   "publisher": "linsyking",
   "description": "Tools Integration for JOJ.",
   "repository": "https://github.com/linsyking/vscode-joj-tools",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "icon": "assets/logo.png",
   "engines": {
     "vscode": "^1.72.0"
