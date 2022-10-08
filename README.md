@@ -9,3 +9,8 @@ VSCode JOJ Tools Integration.
 - Submit questions
 - Submit homework
 - View submission details
+
+## Acknowledgement
+
+- [JOJ Submitter](https://github.com/BoYanZh/JOJ-Submitter)
+- [JI Auth](https://github.com/BoYanZh/JI-Auth)
