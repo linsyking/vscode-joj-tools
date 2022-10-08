@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 const jsdom = require('jsdom');
 const axios = require('axios').default;
+const isWindows = () => Boolean(vscode.env.appRoot && vscode.env.appRoot[0] !== "/");
 import { spawn } from "child_process";
 import { JOJProvider, Course, Homework, Question } from './JOJDataProvider';
 import { check_init, LocalStorageService } from './Config';
@@ -40,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand('joj-tools.submithomework', function (homework: Homework) {
         // Add the queue
-        if(homework.children.length == 0){
+        if (homework.children.length == 0) {
             vscode.window.showErrorMessage("Please first fetch the question list.");
             return;
         }
@@ -116,7 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 }
 
-async function show_detail_page(question:Question) {
+async function show_detail_page(question: Question) {
     const page = await http_get(question.url);
     const dom = new jsdom.JSDOM(page.data);
     var p_detail = dom.window.document.querySelector(".section__body").outerHTML;
@@ -137,12 +138,15 @@ async function ask_lang() {
 
 async function comp_submit(question: Question) {
     const myfolder = vscode.workspace.workspaceFolders;
-    if(!myfolder){
+    if (!myfolder) {
         // Give up
         vscode.window.showErrorMessage("Not in a folder!");
         return;
     }
-    const dir = myfolder ? myfolder[0].uri.path : "./";
+    var dir = myfolder[0].uri.path;
+    if (isWindows()) {
+        dir = dir.substring(1);
+    }
     var lang;
     if (question.lang) {
         lang = question.lang;
@@ -154,6 +158,7 @@ async function comp_submit(question: Question) {
         }
         question.lang = lang;
     }
+    console.log(dir);
     await compress(dir);
     question.changeIcon("sync");
     joj_tree.refresh();
@@ -164,7 +169,7 @@ async function comp_submit(question: Question) {
             vscode.window.showErrorMessage(`${question.name} not passed, please see the details.`)
             const info_panel = vscode.window.createWebviewPanel("details", "Submission Details", vscode.ViewColumn.One);
             info_panel.webview.html = parse_result(question, opt_obj);
-        }else{
+        } else {
             vscode.window.showInformationMessage(`${question.name} Accepted`)
         }
     } catch (error) {
@@ -194,9 +199,10 @@ function parse_result(question: Question, obj: any) {
             if (tc.status == "Accepted") {
                 return;
             }
-            if(question.lang == "matlab"){
-                tc.out = tc.out.substring(380).trim();
-                tc.ans = tc.ans.substring(380).trim();
+            if (question.lang == "matlab") {
+                const pos = tc.out.indexOf("com.") + 4;
+                tc.out = tc.out.substring(pos).trim();
+                tc.ans = tc.ans.substring(pos).trim();
             }
             details_txt += `<h3>Test Case ${index + 1}</h3>
             <h4>Summary</h4>
@@ -232,7 +238,7 @@ function parse_result(question: Question, obj: any) {
             <p>Peak Memory: ${obj.peak_memory}</p>
             <h2>Compiler Text</h2>
             <pre>${obj.compiler_text}</pre>
-            <h2>Unpassed cases</h2>
+            <h2>Failed cases</h2>
             ${details_txt}
         </body>
         </html>`
