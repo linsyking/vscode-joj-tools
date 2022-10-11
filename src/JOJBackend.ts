@@ -13,6 +13,9 @@ export async function submit_code(url: string, zip_path: string, lang: string, s
             if(data.indexOf("Invalid problem")!=-1){
                 resolve("You cannot submit this question.");
             }
+            if(data.indexOf("Upload error")!=-1){
+                resolve("This language is not allowed in this question.");
+            }
             console.log("error", data);
         });
         child.on("exit", ()=>{
