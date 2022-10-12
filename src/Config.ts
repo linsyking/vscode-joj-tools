@@ -15,8 +15,8 @@ export class LocalStorageService {
 }
 
 export function check_init() {
-    check_single("joj-auth", "joj-auth");
-    check_single("joj-submit", "joj-submitter");
+    check_single("ji-auth", "ji-auth>=0.0.3");
+    check_single("joj-submit", "joj-submitter>=0.0.9");
 }
 
 function check_single(com: string, ins: string) {

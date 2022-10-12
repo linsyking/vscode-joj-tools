@@ -311,6 +311,10 @@ async function get_homework_page(homework: Homework) {
         const response = await http_get(homework.url);
         const dom = new jsdom.JSDOM(response.data);
         var homeworks = dom.window.document.querySelectorAll("tr");
+        if(homeworks.length == 0){
+            // TODO: Claim the homework automatically
+            vscode.window.showWarningMessage("Please first claim the homework!");
+        }
         for (let i = 1; i < homeworks.length; i++) {
             const hwk = homeworks[i];
             const title = hwk.querySelectorAll("td")[2].textContent.substring(20).trim();
@@ -364,7 +368,7 @@ async function get_home_page() {
 }
 
 async function get_sid(last_username?: string, last_password?: string) {
-    const child = spawn("joj-auth");
+    const child = spawn("ji-auth", ["joj", "--disable-mask"]);
     child.stdout.setEncoding('utf-8');
     child.stderr.setEncoding('utf-8');
     child.stdin.setDefaultEncoding('utf-8');
@@ -406,6 +410,7 @@ async function get_sid(last_username?: string, last_password?: string) {
     })
 
     child.stderr.on("data", (data) => {
+        console.log(data);
         if (data.indexOf("Please") != -1) {
             vscode.window.showErrorMessage("Something wrong with captcha, username or password! Please try again!");
             get_sid(username_input, password_input);
