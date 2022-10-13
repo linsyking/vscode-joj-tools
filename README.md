@@ -24,3 +24,4 @@ pip3 uninstall ji-auth joj-submitter
 
 - [JOJ Submitter](https://github.com/BoYanZh/JOJ-Submitter)
 - [JI Auth](https://github.com/BoYanZh/JI-Auth)
+
