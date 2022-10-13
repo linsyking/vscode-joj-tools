@@ -85,7 +85,7 @@ export class Homework extends JOJItem {
         private hid: string,
         public readonly course: Course
     ) {
-        super(name, vscode.TreeItemCollapsibleState.Expanded);
+        super(name, vscode.TreeItemCollapsibleState.Collapsed);
         this.tooltip = `${this.name}`;
         this.iconPath = new vscode.ThemeIcon("file");
         this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}`

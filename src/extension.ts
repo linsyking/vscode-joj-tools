@@ -12,6 +12,7 @@ import { compress } from './Compress';
 import { submit_code } from './JOJBackend';
 import { join } from 'path';
 import { rm } from 'fs';
+import { dumpJOJTree, loadJOJTree } from './Serializer';
 
 var dealing_queue: Question[] = [];
 var joj_tree: JOJProvider;
@@ -28,7 +29,15 @@ export function activate(context: vscode.ExtensionContext) {
 
     precheck_sid();
     if (user_sid) {
-        load_page(get_home_page);
+        const cache = local_storage.getValue("joj_tree");
+        if(cache){
+            // User has cache, use cache
+            loadJOJTree(String(cache), joj_tree);
+            console.log(cache);
+            joj_tree.refresh();
+        }else{
+            load_page(get_home_page);
+        }
     }
 
     let disposable = vscode.commands.registerCommand('joj-tools.refresh', function () {
@@ -184,6 +193,7 @@ async function comp_submit(question: Question) {
     question.homework.killChildren();
     await get_homework_page(question.homework);
     joj_tree.refresh();
+    save_joj_tree();
     if (dealing_queue.length > 0) {
         // Still need to work
         await comp_submit(dealing_queue[0]);
@@ -311,7 +321,7 @@ async function get_homework_page(homework: Homework) {
         const response = await http_get(homework.url);
         const dom = new jsdom.JSDOM(response.data);
         var homeworks = dom.window.document.querySelectorAll("tr");
-        if(homeworks.length == 0){
+        if (homeworks.length == 0) {
             // TODO: Claim the homework automatically
             vscode.window.showWarningMessage("Please first claim the homework!");
         }
@@ -334,12 +344,14 @@ async function get_course_page(course: Course) {
     try {
         const response = await http_get(course.url);
         const dom = new jsdom.JSDOM(response.data);
-        var courses = dom.window.document.querySelectorAll(".homework__title")
-        courses.forEach((ele: any) => {
+        var courses = dom.window.document.querySelectorAll(".homework__title");
+        for (let i = 0; i < courses.length; i++) {
+            const ele = courses[i];
             const url = ele.querySelector('a').href;
             const title = ele.textContent;
-            course.addHomework(title, trim_url(url));
-        });
+            const homework = course.addHomework(title, trim_url(url));
+            await get_homework_page(homework);
+        }
         joj_tree.refresh();
     } catch (err) {
         vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`)
@@ -361,6 +373,7 @@ async function get_home_page() {
             await get_course_page(tmp_course);
         }
         joj_tree.refresh();
+        save_joj_tree();
     } catch (err) {
         vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`)
         console.log(err);
@@ -433,5 +446,10 @@ function load_page(playback: any, args?: any, prompt?: string) {
 }
 
 
+function save_joj_tree(){
+    const result = dumpJOJTree(joj_tree);
+    local_storage.setValue("joj_tree", result);
+}
+
 // This method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {}
