@@ -70,7 +70,9 @@ export class Course extends JOJItem {
     }
 
     addHomework(name: string, hid: string) {
-        this.addChild(new Homework(name, this.cid, hid, this));
+        var homework = new Homework(name, this.cid, hid, this);
+        this.addChild(homework);
+        return homework;
     }
 
     contextValue = "course";
@@ -89,7 +91,9 @@ export class Homework extends JOJItem {
         this.url = `https://joj.sjtu.edu.cn/d/${cid}/homework/${this.hid}`
     }
     addQuestion(name: string, qid: string, status: string) {
-        this.addChild(new Question(name, this.cid, this.hid, qid, status, this));
+        var question = new Question(name, this.cid, this.hid, qid, status, this);
+        this.addChild(question);
+        return question;
     }
     contextValue = "homework";
 }
