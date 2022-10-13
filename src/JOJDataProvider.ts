@@ -59,8 +59,8 @@ export class JOJItem extends vscode.TreeItem {
 export class Course extends JOJItem {
     constructor(
         public readonly name: string,
-        private role: string,
-        private cid: string
+        public role: string,
+        public cid: string
     ) {
         super(name, vscode.TreeItemCollapsibleState.Collapsed);
         this.tooltip = `${this.name}-${this.role}`;
@@ -81,8 +81,8 @@ export class Course extends JOJItem {
 export class Homework extends JOJItem {
     constructor(
         public readonly name: string,
-        private cid: string,
-        private hid: string,
+        public cid: string,
+        public hid: string,
         public readonly course: Course
     ) {
         super(name, vscode.TreeItemCollapsibleState.Collapsed);
@@ -102,10 +102,10 @@ export class Question extends JOJItem {
     lang: string | undefined;
     constructor(
         public readonly name: string,
-        private cid: string,
-        private hid: string,
-        private qid: string,
-        private status: string,
+        public cid: string,
+        public hid: string,
+        public qid: string,
+        public status: string,
         public readonly homework: Homework
     ) {
         super(name, vscode.TreeItemCollapsibleState.None);

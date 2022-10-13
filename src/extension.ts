@@ -30,12 +30,11 @@ export function activate(context: vscode.ExtensionContext) {
     precheck_sid();
     if (user_sid) {
         const cache = local_storage.getValue("joj_tree");
-        if(cache){
+        if (cache) {
             // User has cache, use cache
             loadJOJTree(String(cache), joj_tree);
-            console.log(cache);
             joj_tree.refresh();
-        }else{
+        } else {
             load_page(get_home_page);
         }
     }
@@ -446,10 +445,10 @@ function load_page(playback: any, args?: any, prompt?: string) {
 }
 
 
-function save_joj_tree(){
+function save_joj_tree() {
     const result = dumpJOJTree(joj_tree);
     local_storage.setValue("joj_tree", result);
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
