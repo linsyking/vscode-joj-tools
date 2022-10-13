@@ -1,5 +1,5 @@
 import { join } from "path";
-import { zip, COMPRESSION_LEVEL } from "zip-a-folder";
+import { zip, COMPRESSION_LEVEL } from "zip-a-small-folder";
 
 export async function compress(dir_path: string) {
     console.log("Crompressing", dir_path);
