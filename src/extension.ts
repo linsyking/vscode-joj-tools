@@ -13,6 +13,7 @@ import { submit_code } from './JOJBackend';
 import { join } from 'path';
 import { rm } from 'fs';
 import { dumpJOJTree, loadJOJTree } from './Serializer';
+import FormData = require('form-data');
 
 var dealing_queue: Question[] = [];
 var joj_tree: JOJProvider;
@@ -209,9 +210,10 @@ function parse_result(question: Question, obj: any) {
                 return;
             }
             if (question.lang == "matlab") {
-                const pos = tc.out.indexOf("com.") + 4;
-                tc.out = tc.out.substring(pos).trim();
-                tc.ans = tc.ans.substring(pos).trim();
+                const pos_out = tc.out.indexOf("com.") + 4;
+                tc.out = tc.out.substring(pos_out).trim();
+                const pos_ans = tc.out.indexOf("com.") + 4;
+                tc.ans = tc.ans.substring(pos_ans).trim();
             }
             details_txt += `<h3>Test Case ${index + 1}</h3>
             <h4>Summary</h4>
@@ -315,14 +317,34 @@ async function http_get(url: string) {
         });
 }
 
+async function http_post(url: string, form?: FormData) {
+    return axios({
+        method: 'post',
+        url: url,
+        data: form,
+        headers: {
+            Cookie: `sid=${user_sid};save=1;`,
+            // 'Content-Type': `multipart/form-data;`,
+        },
+    });
+}
+
 async function get_homework_page(homework: Homework) {
     try {
         const response = await http_get(homework.url);
         const dom = new jsdom.JSDOM(response.data);
         var homeworks = dom.window.document.querySelectorAll("tr");
         if (homeworks.length == 0) {
-            // TODO: Claim the homework automatically
-            vscode.window.showWarningMessage("Please first claim the homework!");
+            vscode.window.showInformationMessage(`Auto-claiming the homework: ${homework.name}`);
+            const csrf_pos = response.data.indexOf("csrf_token");
+            const n_csrf = response.data.substring(csrf_pos + 13, csrf_pos + 13 + 100);
+            const csrf = n_csrf.substring(0, n_csrf.indexOf("\""));
+            var bform_data = new FormData();
+            bform_data.append("operation", "attend");
+            bform_data.append("csrf_token", csrf);
+            await http_post(homework.url, bform_data);
+            await get_homework_page(homework);
+            return;
         }
         for (let i = 1; i < homeworks.length; i++) {
             const hwk = homeworks[i];
