@@ -14,26 +14,35 @@ export class LocalStorageService {
     }
 }
 
-export function check_init() {
-    check_single("ji-auth", "ji-auth>=0.0.3");
-    check_single("joj-submit", "joj-submitter>=0.0.9");
+export async function check_init() {
+    await check_single("ji-auth", "ji-auth>=0.0.3");
+    await check_single("joj-submit", "joj-submitter>=0.0.9");
+    return "success";
 }
 
-function check_single(com: string, ins: string) {
-    var child = spawn(com, ["--version"]);
-    child.on("error", () => {
-        vscode.window.showInformationMessage(`Not found ${com}, trying to install...`);
-        const child2 = spawn("pip3", ["install", ins]);
-        child2.on("error", () => {
-            // Cannot install
-            vscode.window.showErrorMessage(`Cannot install ${ins}, make sure you have python3 >=3.6 installed and pip3 enabled.`);
+async function check_single(com: string, ins: string) {
+    return new Promise((resolve, reject) => {
+        var child = spawn(com, ["--version"]);
+        child.on("error", () => {
+            vscode.window.showInformationMessage(`Not found ${com}, trying to install...`);
+            const child2 = spawn("pip3", ["install", ins]);
+            child2.on("error", () => {
+                // Cannot install
+                vscode.window.showErrorMessage(`Cannot install ${ins}, make sure you have python3 >=3.6 installed and pip3 enabled.`);
+                reject("fail");
+            })
+            child2.on("exit", (code) => {
+                if (code != 0) {
+                    vscode.window.showErrorMessage(`Failed to run pip3 install ${ins}.`);
+                    reject("fail");
+                } else {
+                    resolve("restart");
+                }
+            })
         })
-        child2.on("exit", (code) => {
-            if (code != 0) {
-                vscode.window.showErrorMessage(`Failed to run pip3 install ${ins}.`);
-            } else {
-                vscode.window.showInformationMessage("Please reload VSCode window to enable this extension.");
-            }
+        child.on("exit", (code) => {
+            resolve("success");
         })
-    })
+    });
+    
 }

@@ -21,41 +21,47 @@ var local_storage: LocalStorageService;
 var user_sid: string;
 
 export function activate(context: vscode.ExtensionContext) {
-    check_init();
-
-    local_storage = new LocalStorageService(context.globalState);
-
-    const course_tree = new JOJProvider();
-    joj_tree = course_tree; // Global Reference
-
-    precheck_sid();
-    if (user_sid) {
-        const cache = local_storage.getValue("joj_tree");
-        if (cache) {
-            // User has cache, use cache
-            loadJOJTree(String(cache), joj_tree);
-            joj_tree.refresh();
-        } else {
-            load_page(get_home_page);
+    (async () => {
+        try {
+            await check_init();
+            local_storage = new LocalStorageService(context.globalState);
+            joj_tree = new JOJProvider();
+            precheck_sid();
+            if (user_sid) {
+                const cache = local_storage.getValue("joj_tree");
+                if (cache) {
+                    // User has cache, use cache
+                    loadJOJTree(String(cache), joj_tree);
+                    joj_tree.refresh();
+                } else {
+                    load_page(get_home_page);
+                }
+            }
+            vscode.window.registerTreeDataProvider("joj-tree", joj_tree);
+        } catch (error) {
+            console.log(error);
         }
-    }
+    })();
 
     let disp_refresh = vscode.commands.registerCommand('joj-tools.refresh', function () {
-        course_tree.clean();
-        course_tree.refresh();
+        if(!user_sid){
+            // Aborted
+            get_sid();
+            return;
+        }
+        joj_tree.clean();
+        joj_tree.refresh();
         load_page(get_home_page);
     });
 
     let disp_clean = vscode.commands.registerCommand('joj-tools.cleanstorage', function () {
-        local_storage.setValue("sid",undefined);
-        local_storage.setValue("joj_tree",undefined);
+        local_storage.setValue("sid", undefined);
+        local_storage.setValue("joj_tree", undefined);
         vscode.window.showInformationMessage("Cleaned!");
     });
 
     context.subscriptions.push(disp_refresh);
     context.subscriptions.push(disp_clean);
-
-    vscode.window.registerTreeDataProvider("joj-tree", course_tree);
 
     vscode.commands.registerCommand('joj-tools.submithomework', function (homework: Homework) {
         // Add the queue
@@ -113,7 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('joj-tools.reedit', function () {
         get_sid();
     });
-    
+
 
     vscode.commands.registerCommand('joj-tools.viewquestion', function (question) {
         // Show the question details
@@ -376,15 +382,15 @@ async function get_homework_page(homework: Homework) {
             const status = hwk.querySelectorAll("td")[0].textContent.trim();
             homework.addQuestion(title, trim_url(url), status);
         }
-        if(homeworks.length == 0 && menu == -1){
+        if (homeworks.length == 0 && menu == -1) {
             // Really has no questions
             vscode.window.showInformationMessage(`It's very likely that ${homework.course.name}-${homework.name} has no questions. Please contact the administrator of this course to set a question for ${homework.name}.`);
         }
         set_refresh_homework(homework);
         joj_tree.refresh();
-    } catch (err:any) {
+    } catch (err: any) {
         vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`);
-        if(err.response.statusText){
+        if (err.response.statusText) {
             vscode.window.showInformationMessage(`Error: ${err.response.statusText}`);
         }
     }
@@ -447,7 +453,7 @@ async function get_sid(last_username?: string, last_password?: string) {
                 prompt: "Please enter the captcha shown in the picture"
             });
             captcha_panel.dispose();
-            if(!captcha_input){
+            if (!captcha_input) {
                 vscode.window.showWarningMessage("Operation aborted");
                 return;
             }
@@ -457,7 +463,7 @@ async function get_sid(last_username?: string, last_password?: string) {
                 title: "Enter the jaccount username",
                 prompt: "Please enter the jaccount username"
             });
-            if(!username_input){
+            if (!username_input) {
                 vscode.window.showWarningMessage("Operation aborted");
                 return;
             }
@@ -468,7 +474,7 @@ async function get_sid(last_username?: string, last_password?: string) {
                 prompt: "Please enter the password",
                 password: true
             });
-            if(!password_input){
+            if (!password_input) {
                 vscode.window.showWarningMessage("Operation aborted");
                 return;
             }
