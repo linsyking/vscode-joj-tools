@@ -40,19 +40,27 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
 
-    let disposable = vscode.commands.registerCommand('joj-tools.refresh', function () {
+    let disp_refresh = vscode.commands.registerCommand('joj-tools.refresh', function () {
         course_tree.clean();
         course_tree.refresh();
         load_page(get_home_page);
     });
-    context.subscriptions.push(disposable);
+
+    let disp_clean = vscode.commands.registerCommand('joj-tools.cleanstorage', function () {
+        local_storage.setValue("sid",undefined);
+        local_storage.setValue("joj_tree",undefined);
+        vscode.window.showInformationMessage("Cleaned!");
+    });
+
+    context.subscriptions.push(disp_refresh);
+    context.subscriptions.push(disp_clean);
 
     vscode.window.registerTreeDataProvider("joj-tree", course_tree);
 
     vscode.commands.registerCommand('joj-tools.submithomework', function (homework: Homework) {
         // Add the queue
         if (homework.children.length == 0) {
-            vscode.window.showErrorMessage("Please first fetch the question list.");
+            vscode.window.showErrorMessage("There are no questions under this homework.");
             return;
         }
         (async () => {
@@ -348,7 +356,8 @@ async function get_homework_page(homework: Homework) {
         const response = await http_get(homework.url);
         const dom = new jsdom.JSDOM(response.data);
         var homeworks = dom.window.document.querySelectorAll("tr");
-        if (homeworks.length == 0) {
+        const menu = dom.window.document.querySelector(".menu__item").innerHTML.indexOf("\"attend\"");
+        if (homeworks.length == 0 && menu != -1) {
             vscode.window.showInformationMessage(`Auto-claiming the homework: ${homework.name}`);
             const csrf_pos = response.data.indexOf("csrf_token");
             const n_csrf = response.data.substring(csrf_pos + 13, csrf_pos + 13 + 100);
@@ -367,12 +376,16 @@ async function get_homework_page(homework: Homework) {
             const status = hwk.querySelectorAll("td")[0].textContent.trim();
             homework.addQuestion(title, trim_url(url), status);
         }
+        if(homeworks.length == 0 && menu == -1){
+            // Really has no questions
+            vscode.window.showInformationMessage(`It's very likely that ${homework.course.name}-${homework.name} has no questions. Please contact the administrator of this course to set a question for ${homework.name}.`);
+        }
         set_refresh_homework(homework);
         joj_tree.refresh();
     } catch (err:any) {
         vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`);
         if(err.response.statusText){
-            vscode.window.showInformationMessage(`${err.response.statusText}. It's very likely that this homework has no questions. Please contact the administrator of this course to set a question for ${homework.name}.`);
+            vscode.window.showInformationMessage(`Error: ${err.response.statusText}`);
         }
     }
 }

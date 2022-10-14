@@ -4,7 +4,7 @@
   "publisher": "linsyking",
   "description": "Tools Integration for JOJ.",
   "repository": "https://github.com/linsyking/vscode-joj-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "icon": "assets/logo.png",
   "engines": {
     "vscode": "^1.72.0"
@@ -23,6 +23,10 @@
         "icon": "$(refresh)",
         "command": "joj-tools.refresh",
         "title": "JOJ Tools: Refresh JOJ"
+      },
+      {
+        "command": "joj-tools.cleanstorage",
+        "title": "JOJ Tools: Clean Storage"
       },
       {
         "icon": "$(gear)",
