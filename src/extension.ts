@@ -212,7 +212,7 @@ function parse_result(question: Question, obj: any) {
             if (question.lang == "matlab") {
                 const pos_out = tc.out.indexOf("com.") + 4;
                 tc.out = tc.out.substring(pos_out).trim();
-                const pos_ans = tc.out.indexOf("com.") + 4;
+                const pos_ans = tc.ans.indexOf("com.") + 4;
                 tc.ans = tc.ans.substring(pos_ans).trim();
             }
             details_txt += `<h3>Test Case ${index + 1}</h3>
