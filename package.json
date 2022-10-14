@@ -4,7 +4,7 @@
   "publisher": "linsyking",
   "description": "Tools Integration for JOJ.",
   "repository": "https://github.com/linsyking/vscode-joj-tools",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "icon": "assets/logo.png",
   "engines": {
     "vscode": "^1.72.0"
@@ -25,24 +25,29 @@
         "title": "JOJ Tools: Refresh JOJ"
       },
       {
-        "icon": "$(pencil)",
+        "icon": "$(gear)",
         "command": "joj-tools.reedit",
-        "title": "Reedit SID"
+        "title": "Reset SID"
       },
       {
-        "icon": "$(pencil)",
+        "icon": "$(run-all)",
         "command": "joj-tools.submithomework",
         "title": "Submit Homework"
       },
       {
-        "icon": "$(pencil)",
-        "command": "joj-tools.submitquestion",
-        "title": "Submit Question"
+        "icon": "$(info)",
+        "command": "joj-tools.viewhomework",
+        "title": "View Homework Details"
       },
       {
-        "icon": "$(eye)",
+        "icon": "$(info)",
         "command": "joj-tools.viewquestion",
         "title": "View Question Details"
+      },
+      {
+        "icon": "$(run)",
+        "command": "joj-tools.submitquestion",
+        "title": "Submit Question"
       },
       {
         "icon": "$(refresh)",
@@ -89,17 +94,22 @@
           "when": "view == joj-tree && viewItem == course"
         },
         {
-          "command": "joj-tools.submitquestion",
-          "group": "inline",
-          "when": "view == joj-tree && viewItem == question"
-        },
-        {
           "command": "joj-tools.refreshquestion",
           "group": "inline",
           "when": "view == joj-tree && viewItem == homework"
         },
         {
+          "command": "joj-tools.viewhomework",
+          "group": "inline",
+          "when": "view == joj-tree && viewItem == homework"
+        },
+        {
           "command": "joj-tools.viewquestion",
+          "group": "inline",
+          "when": "view == joj-tree && viewItem == question"
+        },
+        {
+          "command": "joj-tools.submitquestion",
           "group": "inline",
           "when": "view == joj-tree && viewItem == question"
         }

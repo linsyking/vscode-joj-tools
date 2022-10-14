@@ -10,15 +10,25 @@ VSCode JOJ Tools Integration.
 - Submit homework
 - View submission details
 
+## Installation
+
+Install it through VS Code Extension Market.
+
+You also need to install Python3 beforehand if you haven't.
+
 ## Known Bugs
 
 Please first make sure your `joj-submittor` and `ji-auth` is the latest version.
 
 Otherwise, please first uninstall them first then run the extension. The extension will install the latest version for you.
 
+Uninstallion command:
+
 ```bash
 pip3 uninstall ji-auth joj-submitter
 ```
+
+If the extension tells you that `Failed to run pip3 install XXX`, you can run the command in your terminal and see what's going on. The goal is to install those two python packages.
 
 ## Acknowledgement
 

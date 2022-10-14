@@ -30,7 +30,7 @@ function check_single(com: string, ins: string) {
         })
         child2.on("exit", (code) => {
             if (code != 0) {
-                vscode.window.showErrorMessage(`Failed to run pip3 install ${com}.`);
+                vscode.window.showErrorMessage(`Failed to run pip3 install ${ins}.`);
             } else {
                 vscode.window.showInformationMessage("Please reload VSCode window to enable this extension.");
             }

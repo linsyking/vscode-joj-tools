@@ -42,6 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     let disposable = vscode.commands.registerCommand('joj-tools.refresh', function () {
         course_tree.clean();
+        course_tree.refresh();
         load_page(get_home_page);
     });
     context.subscriptions.push(disposable);
@@ -104,10 +105,16 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('joj-tools.reedit', function () {
         get_sid();
     });
+    
 
     vscode.commands.registerCommand('joj-tools.viewquestion', function (question) {
         // Show the question details
-        show_detail_page(question);
+        show_question_detail_page(question);
+    });
+
+    vscode.commands.registerCommand('joj-tools.viewhomework', function (homework) {
+        // Show the homework details
+        show_homework_detail_page(homework);
     });
 
     vscode.commands.registerCommand('joj-tools.refreshhomework', function (course) {
@@ -126,11 +133,19 @@ export function activate(context: vscode.ExtensionContext) {
 
 }
 
-async function show_detail_page(question: Question) {
+async function show_question_detail_page(question: Question) {
     const page = await http_get(question.url);
     const dom = new jsdom.JSDOM(page.data);
-    var p_detail = dom.window.document.querySelector(".section__body").outerHTML;
+    var p_detail = dom.window.document.querySelector(".section").outerHTML;
     const detail_panel = vscode.window.createWebviewPanel("details", "Question Details", vscode.ViewColumn.One);
+    detail_panel.webview.html = p_detail;
+}
+
+async function show_homework_detail_page(homework: Homework) {
+    const page = await http_get(homework.url);
+    const dom = new jsdom.JSDOM(page.data);
+    var p_detail = dom.window.document.querySelector(".section").outerHTML;
+    const detail_panel = vscode.window.createWebviewPanel("details", "Homework Details", vscode.ViewColumn.One);
     detail_panel.webview.html = p_detail;
 }
 
@@ -323,9 +338,8 @@ async function http_post(url: string, form?: FormData) {
         url: url,
         data: form,
         headers: {
-            Cookie: `sid=${user_sid};save=1;`,
-            // 'Content-Type': `multipart/form-data;`,
-        },
+            Cookie: `sid=${user_sid};save=1;`
+        }
     });
 }
 
@@ -420,12 +434,20 @@ async function get_sid(last_username?: string, last_password?: string) {
                 prompt: "Please enter the captcha shown in the picture"
             });
             captcha_panel.dispose();
+            if(!captcha_input){
+                vscode.window.showWarningMessage("Operation aborted");
+                return;
+            }
             username_input = await vscode.window.showInputBox({
                 ignoreFocusOut: true,
                 value: last_username,
                 title: "Enter the jaccount username",
                 prompt: "Please enter the jaccount username"
             });
+            if(!username_input){
+                vscode.window.showWarningMessage("Operation aborted");
+                return;
+            }
             password_input = await vscode.window.showInputBox({
                 ignoreFocusOut: true,
                 value: last_password,
@@ -433,6 +455,10 @@ async function get_sid(last_username?: string, last_password?: string) {
                 prompt: "Please enter the password",
                 password: true
             });
+            if(!password_input){
+                vscode.window.showWarningMessage("Operation aborted");
+                return;
+            }
             child.stdin.write(`${captcha_input}\n${username_input}\n${password_input}\n`);
         } else {
             if (data.indexOf("Please") == -1) {
