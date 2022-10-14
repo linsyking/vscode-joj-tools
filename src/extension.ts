@@ -355,9 +355,11 @@ async function get_homework_page(homework: Homework) {
         }
         set_refresh_homework(homework);
         joj_tree.refresh();
-    } catch (err) {
-        vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`)
-        console.log(err);
+    } catch (err:any) {
+        vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`);
+        if(err.response.statusText){
+            vscode.window.showInformationMessage(`${err.response.statusText}. It's very likely that this homework has no questions. Please contact the administrator of this course to set a question for ${homework.name}.`);
+        }
     }
 }
 
