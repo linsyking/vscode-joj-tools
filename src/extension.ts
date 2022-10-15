@@ -44,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
     })();
 
     let disp_refresh = vscode.commands.registerCommand('joj-tools.refresh', function () {
-        if(!user_sid){
+        if (!user_sid) {
             // Aborted
             get_sid();
             return;
@@ -165,26 +165,26 @@ async function show_homework_detail_page(homework: Homework) {
 
 async function ask_lang() {
     const lang_map = new Map();
-    lang_map.set("C++","cc");
-    lang_map.set("C","c");
-    lang_map.set("LLVM-C","llvm-c");
-    lang_map.set("LLVM-C++","llvm-cc");
-    lang_map.set("CMakeList","cmake");
-    lang_map.set("Makefile","make");
-    lang_map.set("OCaml","ocaml");
-    lang_map.set("MATLAB","matlab");
-    lang_map.set("C#","cs");
-    lang_map.set("Pascal","pas");
-    lang_map.set("Java","java");
-    lang_map.set("Python 3","py3");
-    lang_map.set("Octave","octave");
-    lang_map.set("PHP","php");
-    lang_map.set("Rust","rs");
-    lang_map.set("Haskell","hs");
-    lang_map.set("Javascript","js");
-    lang_map.set("Go","go");
-    lang_map.set("Ruby","rb");
-    lang_map.set("Other","other");
+    lang_map.set("C++", "cc");
+    lang_map.set("C", "c");
+    lang_map.set("LLVM-C", "llvm-c");
+    lang_map.set("LLVM-C++", "llvm-cc");
+    lang_map.set("CMake", "cmake");
+    lang_map.set("Makefile", "make");
+    lang_map.set("OCaml", "ocaml");
+    lang_map.set("MATLAB", "matlab");
+    lang_map.set("C#", "cs");
+    lang_map.set("Pascal", "pas");
+    lang_map.set("Java", "java");
+    lang_map.set("Python 3", "py3");
+    lang_map.set("Octave", "octave");
+    lang_map.set("PHP", "php");
+    lang_map.set("Rust", "rs");
+    lang_map.set("Haskell", "hs");
+    lang_map.set("Javascript", "js");
+    lang_map.set("Go", "go");
+    lang_map.set("Ruby", "rb");
+    lang_map.set("Other", "other");
     const lang = await vscode.window.showQuickPick(Array.from(lang_map.keys()), { title: "Choose the language" });
     if (!lang) {
         vscode.window.showWarningMessage("Submission aborted");
@@ -381,8 +381,9 @@ async function get_homework_page(homework: Homework) {
         const response = await http_get(homework.url);
         const dom = new jsdom.JSDOM(response.data);
         var homeworks = dom.window.document.querySelectorAll("tr");
-        const menu = dom.window.document.querySelector(".menu__item").innerHTML.indexOf("\"attend\"");
-        if (homeworks.length == 0 && menu != -1) {
+
+        var menu = dom.window.document.querySelector(".icon-add");
+        if (homeworks.length == 0 && menu) {
             vscode.window.showInformationMessage(`Auto-claiming the homework: ${homework.name}`);
             const csrf_pos = response.data.indexOf("csrf_token");
             const n_csrf = response.data.substring(csrf_pos + 13, csrf_pos + 13 + 100);
@@ -401,7 +402,7 @@ async function get_homework_page(homework: Homework) {
             const status = hwk.querySelectorAll("td")[0].textContent.trim();
             homework.addQuestion(title, trim_url(url), status);
         }
-        if (homeworks.length == 0 && menu == -1) {
+        if (homeworks.length == 0 && (!menu)) {
             // Really has no questions
             vscode.window.showInformationMessage(`It's very likely that ${homework.course.name}-${homework.name} has no questions. Please contact the administrator of this course to set a question for ${homework.name}.`);
         }
