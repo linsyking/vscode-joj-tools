@@ -14,7 +14,11 @@ VSCode JOJ Tools Integration.
 
 Install it through VS Code Extension Market.
 
-You also need to install Python3 beforehand if you haven't.
+You also need to install Python3 beforehand if you haven't. If you use Windows, please add python scripts to PATH while installing python.
+
+## Usage
+
+Open your homework folder where the code to submit is. Then use the extension to run your code.
 
 ## Known Bugs
 
