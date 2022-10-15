@@ -164,14 +164,33 @@ async function show_homework_detail_page(homework: Homework) {
 }
 
 async function ask_lang() {
-    const lang = await vscode.window.showQuickPick([
-        "c", "cc", "llvm-c", "llvm-cc", "cmake", "make", "ocaml", "matlab", "cs", "pas", "java", "py", "py3", "octave", "php", "rs", "hs", "js", "go", "rb", "other"
-    ], { title: "Choose the language" });
+    const lang_map = new Map();
+    lang_map.set("C++","cc");
+    lang_map.set("C","c");
+    lang_map.set("LLVM-C","llvm-c");
+    lang_map.set("LLVM-C++","llvm-cc");
+    lang_map.set("CMakeList","cmake");
+    lang_map.set("Makefile","make");
+    lang_map.set("OCaml","ocaml");
+    lang_map.set("MATLAB","matlab");
+    lang_map.set("C#","cs");
+    lang_map.set("Pascal","pas");
+    lang_map.set("Java","java");
+    lang_map.set("Python 3","py3");
+    lang_map.set("Octave","octave");
+    lang_map.set("PHP","php");
+    lang_map.set("Rust","rs");
+    lang_map.set("Haskell","hs");
+    lang_map.set("Javascript","js");
+    lang_map.set("Go","go");
+    lang_map.set("Ruby","rb");
+    lang_map.set("Other","other");
+    const lang = await vscode.window.showQuickPick(Array.from(lang_map.keys()), { title: "Choose the language" });
     if (!lang) {
         vscode.window.showWarningMessage("Submission aborted");
         return;
     }
-    return lang;
+    return lang_map.get(lang);
 }
 
 async function comp_submit(question: Question) {
