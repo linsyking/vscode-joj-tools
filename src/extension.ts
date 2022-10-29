@@ -513,8 +513,8 @@ async function get_sid(last_username?: string, last_password?: string) {
     child.stderr.on("data", (data) => {
         console.log(data);
         if (data.indexOf("Please") != -1) {
-            vscode.window.showErrorMessage("Something wrong with captcha, username or password! Please try again!");
-            get_sid(username_input, password_input);
+            vscode.window.showErrorMessage("Something wrong with captcha, username or password! Please try again by clicking the setting icon!");
+            // get_sid(username_input, password_input);
         }
 
     })
