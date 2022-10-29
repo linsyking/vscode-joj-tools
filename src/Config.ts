@@ -15,8 +15,8 @@ export class LocalStorageService {
 }
 
 export async function check_init() {
-    await check_single("ji-auth", "ji-auth>=0.0.3");
-    await check_single("joj-submit", "joj-submitter>=0.0.9");
+    await check_single("ji-auth", "ji-auth==0.0.3");
+    await check_single("joj-submit", "joj-submitter==0.0.9");
     return "success";
 }
 
