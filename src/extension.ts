@@ -5,10 +5,11 @@ import * as vscode from 'vscode';
 const jsdom = require('jsdom');
 const axios = require('axios').default;
 const isWindows = () => Boolean(vscode.env.appRoot && vscode.env.appRoot[0] !== "/");
+
 import { spawn } from "child_process";
 import { JOJProvider, Course, Homework, Question } from './JOJDataProvider';
 import { check_init, LocalStorageService } from './Config';
-import { compress } from './Compress';
+import { compress, dirSize } from './Compress';
 import { submit_code } from './JOJBackend';
 import { join } from 'path';
 import { rm } from 'fs';
@@ -216,6 +217,14 @@ async function comp_submit(question: Question) {
         question.lang = lang;
     }
     console.log(dir);
+    // Check folder size
+    const size = await dirSize(dir);
+    console.log("dir size", size);
+    if(size>2*1024*1024){
+        del_queue(question);
+        vscode.window.showErrorMessage("Directory size too large!");
+        return;
+    }
     await compress(dir);
     question.changeIcon("sync");
     joj_tree.refresh();
