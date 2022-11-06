@@ -417,6 +417,7 @@ async function get_homework_page(homework: Homework) {
         }
         set_refresh_homework(homework);
         joj_tree.refresh();
+        save_joj_tree();
     } catch (err: any) {
         vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`);
         if (err.response.statusText) {
@@ -438,6 +439,7 @@ async function get_course_page(course: Course) {
             await get_homework_page(homework);
         }
         joj_tree.refresh();
+        save_joj_tree();
     } catch (err) {
         vscode.window.showErrorMessage(`Cannot fetch JOJ Page.${err}`)
         console.log(err);
