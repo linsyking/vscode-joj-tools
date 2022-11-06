@@ -168,8 +168,8 @@ async function ask_lang() {
     const lang_map = new Map();
     lang_map.set("C++", "cc");
     lang_map.set("C", "c");
-    lang_map.set("LLVM-C", "llvm-c");
-    lang_map.set("LLVM-C++", "llvm-cc");
+    lang_map.set("C with memory check (clang)", "llvm-c");
+    lang_map.set("C++ with memory check (clang++)", "llvm-cc");
     lang_map.set("CMake", "cmake");
     lang_map.set("Makefile", "make");
     lang_map.set("OCaml", "ocaml");
