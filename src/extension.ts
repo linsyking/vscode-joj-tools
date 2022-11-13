@@ -9,7 +9,7 @@ const isWindows = () => Boolean(vscode.env.appRoot && vscode.env.appRoot[0] !== 
 import { spawn } from "child_process";
 import { JOJProvider, Course, Homework, Question } from './JOJDataProvider';
 import { check_init, LocalStorageService } from './Config';
-import { compress, dirSize } from './Compress';
+import { compress } from './Compress';
 import { submit_code } from './JOJBackend';
 import { join } from 'path';
 import { rm } from 'fs';
@@ -199,6 +199,7 @@ async function comp_submit(question: Question) {
     if (!myfolder) {
         // Give up
         vscode.window.showErrorMessage("Not in a folder!");
+        await next_check(question);
         return;
     }
     var dir = myfolder[0].uri.path;
@@ -211,24 +212,20 @@ async function comp_submit(question: Question) {
     } else {
         lang = await ask_lang();
         if (!lang) {
-            del_queue(question);
+            await next_check(question);
             return;
         }
         question.lang = lang;
     }
-    console.log(dir);
-    // Check folder size
-    const size = await dirSize(dir);
-    console.log("dir size", size);
-    if(size>2*1024*1024){
-        del_queue(question);
-        vscode.window.showErrorMessage("Directory size too large!");
+    const compress_result = await compress(dir);
+    if (compress_result != 0) {
+        vscode.window.showErrorMessage(compress_result);
+        await next_check(question);
         return;
     }
-    await compress(dir);
     question.changeIcon("sync");
     joj_tree.refresh();
-    const opt = await submit_code(question.url, join(dir, "../a.zip"), String(lang), user_sid);
+    const opt = await submit_code(question.url, join(dir, "joj_upload.zip"), String(lang), user_sid);
     try {
         var opt_obj = JSON.parse(String(opt));
         if (opt_obj.status != "Accepted") {
@@ -243,14 +240,16 @@ async function comp_submit(question: Question) {
     }
 
     // Remove zip
-    rm(join(dir, "../a.zip"), () => { });
-    // Delete item in queue
+    rm(join(dir, "joj_upload.zip"), () => { });
+    await next_check(question);
+}
+
+async function next_check(question: Question){
     del_queue(question);
     // Upload Question
     question.homework.killChildren();
     await get_homework_page(question.homework);
     joj_tree.refresh();
-    save_joj_tree();
     if (dealing_queue.length > 0) {
         // Still need to work
         await comp_submit(dealing_queue[0]);
