@@ -29,10 +29,14 @@ Otherwise, please first uninstall them first then run the extension. The extensi
 Uninstallion command:
 
 ```bash
+# On Windows/MacOS
 pip3 uninstall ji-auth joj-submitter
+
+# On linux
+pipx uninstall ji-auth joj-submitter
 ```
 
-If the extension tells you that `Failed to run pip3 install XXX`, you can run the command in your terminal and see what's going on. The goal is to install those two python packages.
+If the extension tells you that `Failed to install XXX`, you can run the command in your terminal and see what's going on. The goal is to install those two python packages.
 
 ## Acknowledgement
 
