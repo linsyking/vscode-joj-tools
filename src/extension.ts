@@ -450,6 +450,11 @@ async function get_home_page() {
         const response = await http_get("https://joj.sjtu.edu.cn/");
         const dom = new jsdom.JSDOM(response.data);
         const courses = dom.window.document.querySelectorAll("tr");
+        if (courses.length == 0) {
+            vscode.window.showErrorMessage(`It seems that your account is expired or there is no course in your account. Try signing in again.`)
+            get_sid();
+            return;
+        }
         for (let i = 2; i < courses.length; i++) {
             const element = courses[i];
             const name = element.querySelector("td").textContent.trim();
