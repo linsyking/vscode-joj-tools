@@ -2,6 +2,8 @@
 
 VSCode JOJ Tools Integration.
 
+[中文版README](https://github.com/Hydraallen/vscode-joj-tools/blob/main/README_zh_CN.md)
+
 ## Features
 
 - View courses, homework and questions

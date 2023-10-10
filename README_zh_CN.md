@@ -1,6 +1,6 @@
 # JOJ Tools
 
-VSCode JOJ Tools Integration.
+[English version](https://github.com/Hydraallen/vscode-joj-tools/blob/main/README.md)
 
 ## 功能
 
