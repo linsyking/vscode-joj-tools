@@ -2,6 +2,8 @@
 
 VSCode JOJ Tools Integration.
 
+[中文版README](https://github.com/Hydraallen/vscode-joj-tools/blob/main/README_zh_CN.md)
+
 ## Features
 
 - View courses, homework and questions
@@ -14,13 +16,15 @@ VSCode JOJ Tools Integration.
 
 Install it through VS Code Extension Market.
 
-You also need to install Python3 beforehand if you haven't. If you use Windows, please add python scripts to PATH while installing python.
+You also need to install [Python3](https://www.python.org/) and pip3 beforehand if you haven't. If you use Windows, please add python scripts to PATH while installing python.
 
 ## Usage
 
 Open your homework folder where the code to submit is. Then use the extension to run your code.
 
 ## Known Bugs
+
+### Old version packages
 
 Please first make sure your `joj-submittor` and `ji-auth` is the latest version.
 
@@ -37,6 +41,28 @@ pipx uninstall ji-auth joj-submitter
 ```
 
 If the extension tells you that `Failed to install XXX`, you can run the command in your terminal and see what's going on. The goal is to install those two python packages.
+
+### Mismatched version of pip3 and Python3.
+
+Mismatched version of pip3 and Python3 may leads to installation failure of `ji-auth` and `joj-submitter`.
+
+Please first check the Python version installed on your computer with commands:
+
+```bash
+python3 -V
+```
+
+It will show the version of Python like: `Python 3.a.b`.
+
+Then check the pip version installed on your computer with commands:
+
+```bash
+pip3 -V
+```
+
+It will first show the version and path of pip. At the end, it will show the corresponding Python version like `(python 3.a)`, which should match the python version above.
+
+If it doesn't match, please reinstall pip3.
 
 ## Acknowledgement
 
