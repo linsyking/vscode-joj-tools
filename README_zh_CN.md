@@ -26,6 +26,11 @@
 
 请首先确保您的 `joj-submittor` 和 `ji-auth` 是最新版本。
 
+```bash
+ji-auth --version
+joj-submit --version
+```
+
 如果之前安装有旧版本的请先卸载它们，然后运行扩展。扩展将为您安装最新版本。
 
 卸载指令：
@@ -61,6 +66,16 @@ pip3 -V
 它将首先显示 pip 的版本和路径。最后，它将显示相应的 Python 版本，如 `(python 3.a)`，这里的版本应该与上面的 Python 版本匹配。
 
 如果不匹配，请重新安装 pip3。
+
+#### MacOS 相关
+
+如果您使用 Big Sur 之后的 MacOS版本，您的 VSCode 可能无法正确连接到 shell。以下是解决方案：
+
+1. 卸载 VSCode 中的 `joj-tools` 并**退出** VSCode。
+2. 确保您的 `joj-submittor` 和 `ji-auth` 是最新版本。
+3. 在终端中试用 `ji-auth joj` 并输入您的 jaccount 完成登录。
+4. 打开 VSCode 并再次安装 `joj-tools`。
+5. 点击 "JOJ "按钮并登录。
 
 ## 致谢
 
