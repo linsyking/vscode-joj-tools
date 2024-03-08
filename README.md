@@ -26,7 +26,12 @@ Open your homework folder where the code to submit is. Then use the extension to
 
 ### Old version packages
 
-Please first make sure your `joj-submittor` and `ji-auth` is the latest version.
+Please first make sure your `joj-submittor` and `ji-auth` is the latest version:
+
+```bash
+ji-auth --version
+joj-submit --version
+```
 
 Otherwise, please first uninstall them first then run the extension. The extension will install the latest version for you.
 
@@ -63,6 +68,16 @@ pip3 -V
 It will first show the version and path of pip. At the end, it will show the corresponding Python version like `(python 3.a)`, which should match the python version above.
 
 If it doesn't match, please reinstall pip3.
+
+### Related to MacOS
+
+If you are using MacOS after Big Sur, it is possible that your VSCode may not be connected to the shell properly. Here is the solution:
+
+1. Uninstall `joj-tools` in VSCode and **quit** VSCode.
+2. Make sure your `joj-submittor` and `ji-auth` is the latest version.
+3. Try `ji-auth joj` in the terminal and finish the login in part by entering your jaccount.
+4. Open VSCode and install `joj-tools` again.
+5. Click the buttom of `JOJ` and login in.
 
 ## Acknowledgement
 
